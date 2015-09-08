@@ -83,6 +83,41 @@
       </div>
     </section>
 
+    <div style="display: none">
+      D8: Gonna be great
+      D8: We're playing catch up
+      Get out in front of changes, prepare for them now
+      What will the market want/need/look like in 2020?
+      What will the tech be in 2020?
+
+      Dries: Push web
+      Decoupled CMSes (need source for growth)
+      Headless (Often many requests)
+      Real time web (websockets, SSE)
+
+      None of those work well now:
+      - Push on queue?  Now you're doing async badly
+      - Decoupled: Need many requests, diff caching. Really want a lighter bootstrap
+      - Real time: Needs persistent connection, daemon
+      => The problem is CGI. Need to move away from CGI.
+
+      PHP w/out CGI???
+      - PHP 5.3: daemons actually work, RAM-wise
+      - Have sockets
+      - React PHP, async, fast, websockets
+      - Icicle.io, generators
+      - Process forking?
+
+      We will need this in 2020. But which? All or nothing? No idea?
+
+      How do we prepare for what we don't know?
+      Stateless code.
+      Isolated IO (to replace)
+      No container-aware (need different container).
+      .. The same good clean code we've been after for a long time.
+
+    </div>
+
     <section id="final-slide">
       <h2>Larry Garfield</h2>
       <p>Senior Architect, <a href="http://www.palantir.net/">Palantir.net</a></p>
