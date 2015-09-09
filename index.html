@@ -159,6 +159,137 @@
       <section>
         <h2>Let's look at trends</h2>
       </section>
+      <section>
+        <h2>Push-web</h2>
+        <blockquote>I believe that for the web to reach its full potential, it
+          will go through a massive re-architecture and re-platforming in the next
+          decade... The future of the web is "push-based", meaning the web will
+          be coming to us.</blockquote>
+        <p>&mdash;Dries Buytaert, <a href="http://buytaert.net/the-big-reverse-of-the-web">The Big Reverse of the Web</a></p>
+        <aside class="notes">
+          <ul>
+            <li>Push-based, meaning server takes action.</li>
+            <li>Queues are insufficient.</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <h2>Saving the Open Web</h2>
+        <blockquote>For the Open Web to win, we first must build websites and
+          applications that exceed the user experience of Facebook, Apple, Google,
+          etc. Second, we need to take back control of our data.</blockquote>
+        <blockquote class="fragment">To deliver the best user experience, you want “loosely-coupled
+          architectures with a highly integrated user experience”</blockquote>
+        <p class="fragment">&mdash;Dries Buytaert, <a href="http://buytaert.net/winning-back-the-open-web">Winning Back the Open Web</a></p>
+      </section>
+      <section>
+        <h2>Decoupled CMS</h2>
+        <p class="fragment bigtext">Separate "editorial" from "presentational" install</p>
+        <ul>
+          <li class="fragment">Static generator</li>
+          <li class="fragment">View-only application</li>
+          <li class="fragment">Twin installs (weird!)</li>
+          <li class="fragment">Live Content server / presentation server</li>
+        </ul>
+        <aside class="notes">
+          <ul>
+            <li>Not JS framework "headless"</li>
+            <li>Keep getting clients asking for separate content staging server</li>
+            <li>Live server has active connection to presentation server, high traffic</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <img src="assets/decoupled-cms-schedule.png" alt="Decoupled CMSes let you evolve the front and back end separately" data-credit="https://twitter.com/ToddRoss/status/495245469543849984" />
+        <p><a href="https://twitter.com/ToddRoss/status/495245469543849984">Todd Ross Nienkerk: "Future of the CMS"</a></p>
+      </section>
+      <section>
+        <blockquote>HTML, CSS, user interaction, analytics, social media integration,
+          public user interaction, etc. are <em>content delivery concerns</em>.  Content
+          modeling, workflow, editing, indexing, etc. are <em>content management
+          concerns</em>.</blockquote>
+        <p>&mdash;Deane Barker, <a href="http://gadgetopia.com/post/7206">Decoupled Content Management 101</a></p>
+      </section>
+      <section class="l-2up">
+        <h2>Headless (JS apps)</h2>
+        <div>
+          <img src="assets/headless-drupal-horseman.jpg" alt="Headless Drupal" data-credit="https://pantheon.io/blog/headless-websites-whats-big-deal" />
+        </div>
+        <div>
+          <ul>
+            <li class="fragment">High-traffic API</li>
+            <li class="fragment">... The same API as live content server?</li>
+            <li class="fragment">Micro-transactions</li>
+          </ul>
+        </div>
+      </section>
+      <section>
+        <p class="bigtext">Drupal based on micro-services?</p>
+        <h2 class="fragment" style="margin-top: 1em;">Drupal <em>as</em> a microservice?</h2>
+        <h2 class="fragment" style="margin-top: 1em;">Drupal <em>as</em> microservices?</h2>
+      </section>
+      <section class="l-3up">
+        <h2>The Real-Time Web</h2>
+        <div class="fragment">
+          <p class="bigtext">EventSource</p>
+        </div>
+        <div class="fragment">
+          <img src="assets/websockets" alt="Websockets" data-credit="" />
+        </div>
+        <div class="fragment">
+          <img src="assets/http2" alt="HTTP 2" data-credit="" />
+        </div>
+        <p class="fragment bigtext">Persistent connections with server-push</p>
+      </section>
+      <section>
+        <p class="bigtext">Our current way of running Drupal is<br />woefully inadequate</p>
+      </section>
+    </section>
+    <section>
+      <section>
+        <h2>The problem is CGI</h2>
+      </section>
+      <section>
+        <h2><a href="https://en.wikipedia.org/wiki/Common_Gateway_Interface">Common Gateway Interface</a></h2>
+        <ul>
+          <li class="fragment">NCSA, 1993</li>
+          <li class="fragment">"specification for calling command line executables"</li>
+          <li class="fragment">Pass environment variables to script</li>
+          <li class="fragment"><code>$_SERVER</code></li>
+        </ul>
+        <aside class="notes">
+          <ul>
+            <li>Older than many people in this room</li>
+            <li>Why is $_SERVER so weird?  CGI.</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <p class="bigtext">Shared nothing design can't keep up</p>
+        <ul>
+          <li class="fragment">OS overhead</li>
+          <li class="fragment">No connection persistence</li>
+          <li class="fragment">Wasteful application boot</li>
+        </ul>
+        <p class="fragment">How much of Drupal 8 is designed around<br />compensating for shared-nothing?</p>
+        <aside class="notes">
+          <ul>
+            <li>Process management, hand-off, even with "FastCGI"</li>
+            <li>Persistence: No daemons, no push</li>
+            <li>How much do we stress over container and boot performance?</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <h2>It's time to leave CGI behind</h2>
+      </section>
+      <section>
+        <img src="assets/say-what-baby.jpg" alt="Wait, WHAT?" data-credit="http://aleteia.org/2015/05/21/married-sex-is-the-best-sex-if-you-do-it-right/" />
+      </section>
+    </section>
+    <section>
+      <h2>Non-CGI PHP</h2>
+      <p class="bigtext fragment">Yes, for reals</p>
     </section>
 
 
@@ -192,6 +323,7 @@
 
       How do we prepare for what we don't know?
       Stateless code.
+      Even less of our own code
       Isolated IO (to replace)
       No container-aware (need different container).
       .. The same good clean code we've been after for a long time.
