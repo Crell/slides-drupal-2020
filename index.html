@@ -40,6 +40,29 @@
       margin-top: 1em;
     }
 
+    li.bigdeal {
+      font-size: 150%;
+      color: Red;
+      font-style: italic;
+      text-shadow: 3px 3px 10px #990000;
+    }
+
+    span.bigdeal {
+      font-size: 150%;
+      color: Red;
+      font-style: italic;
+      text-shadow: 3px 3px 10px #990000;
+      text-transform: uppercase;
+      transition: 500ms;
+    }
+
+    p.bigdeal {
+      font-size: 200%;
+      color: Red;
+      font-style: italic;
+      text-shadow: 3px 3px 10px #990000;
+    }
+
   </style>
 
   <script src="palantirnet-theme/js/classer.js"></script>
@@ -291,6 +314,145 @@
       <h2>Non-CGI PHP</h2>
       <p class="bigtext fragment">Yes, for reals</p>
     </section>
+    <section>
+      <section>
+        <h2>React PHP</h2>
+      </section>
+      <section>
+
+      </section>
+    </section>
+    <section>
+      <section>
+        <h2>Icicle</h2>
+      </section>
+      <section>
+
+      </section>
+    </section>
+    <section>
+      <section>
+        <h2>HHVM</h2>
+      </section>
+      <section>
+
+      </section>
+    </section>
+    <section>
+      <section>
+        <h2>Forking PHP!</h2>
+      </section>
+      <section>
+
+      </section>
+    </section>
+    <section>
+      <section>
+        <h2>Who will win?</h2>
+      </section>
+      <section>
+        <img src="assets/8-ball-ask-later" alt="Ask again later; I can't predict the future" data-credit="" />
+      </section>
+      <section>
+        <p class="bigtext">CGI won't go away entirely</p>
+        <p class="fragment bigtext">We just need to work without it</p>
+        <p class="fragment bigtext">Yes, we will need both!</p>
+        <aside class="notes">
+          <ul>
+            <li>How do we make a CGI Drupal and an async Drupal?</li>
+            <li>How do we make a monolithic Drupal and a decoupled Drupal?</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <h2>What we need</h2>
+        <p class="fragment bigtext">Different configurations of common<br /><span id="drupal-components">Drupal components</span></p>
+        <span class="fragment" data-classer="drupal-components" data-classer-class="bigdeal"></span>
+        <aside class="notes">
+          <ul>
+            <li>A clue!</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <p class="bigtext">We need components that can run in any mode!</p>
+      </section>
+      <section>
+        <h2>Resuable components</h2>
+        <ul>
+          <li class="fragment">Stateless <span class="fragment">(Not one single global!)</span></li>
+          <li class="fragment">No request(stack) dependencies</li>
+          <li class="fragment">Container-free</li>
+          <li class="fragment">Isolated IO</li>
+          <li class="fragment">As little custom code as possible</li>
+        </ul>
+        <p class="fragment">Dare I say, pure functional? <span class="fragment">(I dare)</span></p>
+        <aside class="notes">
+          <ul>
+            <li>Stateless: No state makes it reentrant; value objects</li>
+            <li>Request: Context tracking a nightmare</li>
+            <li>Container: Probably want different container</li>
+            <li>IO: Probably have to rewrite it for each mode</li>
+            <li>No custom: Lot of work, encourages separation</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <p class="bigtext">The same clean-code standards we've been pushing for years!</p>
+        <p class="fragment bigtext">This is why</p>
+      </section>
+      <section>
+        <h2>Challenges</h2>
+        <ul>
+          <li class="fragment">Entity API: <span class="fragment">too many statics, service dependencies</span></li>
+          <li class="fragment">Render API: <span class="fragment">Render context?</span></li>
+          <li class="fragment">ContainerAware: <span class="fragment">Coupled to one container</span></li>
+          <li class="fragment">RequestStack: <span class="fragment">Subrequests, not async</span></li>
+        </ul>
+        <aside class="notes">
+          <ul>
+            <li>Render context could go either way if async</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <p class="bigtext">Thread-safe code can easily be used in CGI mode, but not vice versa.</p>
+        <p class="fragment bigtext">It's also far more testable.</p>
+      </section>
+      <section>
+        <p class="bigtext">This is within sight...</p>
+        <div class="fragment">
+          <p class="bigtext">... because Drupal 8</p>
+          <img src="assets/drupal-8-logo.svg" alt="Drupal 8 got us closer" />
+          <aside class="notes">
+            <ul>
+              <li>Drupal 8 is closer to this vision than Drupal 7 is to Drupal 8</li>
+              <li>As long as we don't slide backward</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+    </section>
+    <section>
+      <section>
+        <p class="bigtext"><q>But what if you're wrong?</q></p>
+        <p>&mdash;Everyone in this room</p>
+      </section>
+      <section>
+        <h2>Left with...</h2>
+        <ul>
+          <li class="fragment">Highly decoupled...</li>
+          <li class="fragment">Highly testable...</li>
+          <li class="fragment">Resuable...</li>
+          <li class="fragment">Sharable...</li>
+        </ul>
+        <p class="fragment bigtext">Components</p>
+      </section>
+      <section>
+        <h1>Win!</h1>
+        <img src="assets/win" alt="We still win" data-credit="" />
+      </section>
+    </section>
 
 
 
@@ -329,6 +491,27 @@
       .. The same good clean code we've been after for a long time.
 
     </div>
+
+    <section>
+      <section>
+        <h2>Tools</h2>
+        <ul>
+          <li><a href="http://www.reactphp.org/">React PHP</a></li>
+          <li><a href="http://icicle.io">Icicle</a></li>
+          <li><a href="">HHVM</a></li>
+        </ul>
+      </section>
+      <section>
+        <h2>Further reading</h2>
+        <ul>
+          <li><a href=""></a>PHP process control</li>
+          <li><a href="http://www.sitepoint.com/an-introduction-into-event-loops-in-php/">An Introduction to Event Loops</a></li>
+          <li><a href=""></a>Articles from phone</li>
+          <li><a href=""></a></li>
+          <li><a href=""></a></li>
+        </ul>
+      </section>
+    </section>
 
     <section id="final-slide">
       <h2>Larry Garfield</h2>
