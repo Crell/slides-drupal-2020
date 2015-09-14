@@ -68,8 +68,9 @@
     }
 
     .reveal .output {
-      border: 1px black;
-      border-style: dotted;
+      border: 1px solid black;
+      font-family: monospace;
+      padding: 5px;
     }
 
   </style>
@@ -386,7 +387,7 @@ $loop->run();
       <section>
         <h2>Generators</h2>
         <p class="fragment">Shortcut for iterators</p>
-        <pre class="font--20"><code class="php" data-trim>
+        <pre class="fragment font--20"><code class="php" data-trim>
 function xrange($start, $end) {
   for($i = $start; $i <= $end; ++$i) {
     yield $i;
@@ -424,7 +425,7 @@ print $s->send(5) . PHP_EOL;
 print $s->send(3) . PHP_EOL;
 print $s->send(0) . PHP_EOL;
         </code></pre>
-        <pre class="fragment">
+        <pre class="output fragment">
 25
 9
 Done
@@ -449,10 +450,10 @@ $logger = logger(__DIR__ . '/log.txt');
 $logger->send('Foo');
 $logger->send('Bar');
         </code></pre>
-        <div class="output"><pre class="fragment">
+        <pre class="output fragment">
 Foo
 Bar
-        </pre></div>
+        </pre>
       </section>
       <section>
         <h2>Coroutines</h2>
@@ -485,7 +486,7 @@ Loop\run();
 
       <section>
         <h2>Promises in Icicle</h2>
-        <pre class="font--20"><code class="php" data-trim>
+        <pre class="font--18"><code class="php" data-trim>
 use ...;
 
 $resolver = new Resolver(new Executor('8.8.8.8'));
@@ -602,6 +603,7 @@ function server_loop($address, $port) {
         <aside class="notes">
           <ul>
             <li>Note: Buggy, error handling removed. :-)</li>
+            <li>Various libs to wrap up into nicer API</li>
           </ul>
         </aside>
       </section>
