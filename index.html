@@ -40,6 +40,10 @@
       margin-top: 1em;
     }
 
+    .struck {
+      text-decoration: line-through;
+    }
+
     li.bigdeal {
       font-size: 150%;
       color: Red;
@@ -61,6 +65,11 @@
       color: Red;
       font-style: italic;
       text-shadow: 3px 3px 10px #990000;
+    }
+
+    .reveal .output {
+      border: 1px black;
+      border-style: dotted;
     }
 
   </style>
@@ -117,7 +126,7 @@
       </section>
       <section>
         <p class="bigtext">Wordpress had a <a href="http://wp-api.org/">REST API</a> years ago</p>
-        <p class="fragment bigtext">Joomla was responsive by default in 20xx.</p>
+        <p class="fragment bigtext">Joomla was responsive by default <a href="https://www.joomla.org/announcements/release-news/5464-joomla-3-0-0-released.html">in 2012</a>.</p>
       </section>
       <section>
         <blockquote class="twitter-tweet" lang="en"><p lang="en" dir="ltr">I&#39;d hate to sound like a hater, but the &#39;breakthru&#39; <a href="https://twitter.com/hashtag/Drupal8?src=hash">#Drupal8</a> features seem like what <a href="https://twitter.com/hashtag/EPiServer?src=hash">#EPiServer</a> 7 had 3 yrs ago <a href="http://t.co/Vi7oGzmvcp">pic.twitter.com/Vi7oGzmvcp</a></p>&mdash; Arild Henrichsen (@ahenrichsen) <a href="https://twitter.com/ahenrichsen/status/620640287220756481">July 13, 2015</a></blockquote>
@@ -319,7 +328,55 @@
         <h2>React PHP</h2>
       </section>
       <section>
+        <h2>React PHP</h2>
+        <p class="fragment bigtext">Like NodeJS, but in PHP</p>
+        <p class="fragment bigtext"><em>The</em> way to do Websockets in PHP today</p>
+      </section>
+      <section>
+        <h2>React web server</h2>
+        <pre class="font--20"><code class="php" data-trim>
+$i = 0;
 
+$app = function ($request, $response) use (&$i) {
+    $i++;
+
+    $text = "This is request number $i.\n";
+    $headers = array('Content-Type' => 'text/plain');
+
+    $response->writeHead(200, $headers);
+    $response->end($text);
+};
+
+$loop = React\EventLoop\Factory::create();
+$socket = new React\Socket\Server($loop);
+$http = new React\Http\Server($socket);
+
+$http->on('request', $app);
+
+$socket->listen(1337);
+$loop->run();
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Ignore boilerplate, notice shared process</li>
+            <li>Probably don't want to actually share data...</li>
+            <li>Share bootstrap!</li>
+            <li>Multiplex?</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <h2 id="async-io">Asynchronous IO</h2>
+        <h2 class="fragment" data-classer="async-io" data-classer-class="struck">Non-Blocking IO</h2>
+        <ul>
+          <li class="fragment">Tell OS to handle IO for you</li>
+          <li class="fragment">Return from call immediately</li>
+          <li class="fragment">Check back later</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Promises</h2>
+        <p class="fragment">Solving callbacks</p>
       </section>
     </section>
     <section>
@@ -327,8 +384,136 @@
         <h2>Icicle</h2>
       </section>
       <section>
+        <h2>Generators</h2>
+        <p class="fragment">Shortcut for iterators</p>
+        <pre class="font--20"><code class="php" data-trim>
+function xrange($start, $end) {
+  for($i = $start; $i <= $end; ++$i) {
+    yield $i;
+  }
+}
 
+foreach(xrange(1, 1000000000) as $val) {
+  // ...
+}
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Calling xrange() returns \Generator implements Iterator</li>
+            <li>yield: Pause execution, return value, resume later</li>
+            <li>Very low memory usage</li>
+            <li>Combine with iterator tools, like calback, filters, etc.</li>
+            <li>Methods can be generators, too.</li>
+          </ul>
+        </aside>
       </section>
+      <section>
+        <h2>Sending to generators</h2>
+        <pre class="font--20"><code class="php" data-trim>
+function power($pow) {
+  $val = yield;
+  while ($val) {
+    $result = $val * $val;
+    $val = (yield $result);
+  }
+  yield "Done";
+}
+
+$s = power(2);
+print $s->send(5) . PHP_EOL;
+print $s->send(3) . PHP_EOL;
+print $s->send(0) . PHP_EOL;
+        </code></pre>
+        <pre class="fragment">
+25
+9
+Done
+        </pre>
+        <aside class="notes">
+          <ul>
+            <li>Generators can communicate!</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <pre class="font--20"><code class="php" data-trim>
+function logger($fileName) {
+  $fileHandle = fopen($fileName, 'a');
+  while (true) {
+    $val = yield;
+    fwrite($fileHandle, $val. "\n");
+  }
+}
+
+$logger = logger(__DIR__ . '/log.txt');
+$logger->send('Foo');
+$logger->send('Bar');
+        </code></pre>
+        <div class="output"><pre class="fragment">
+Foo
+Bar
+        </pre></div>
+      </section>
+      <section>
+        <h2>Coroutines</h2>
+        <blockquote>Coroutines are computer program components that generalize
+          subroutines for nonpreemptive multitasking, by allowing multiple entry
+          points for suspending and resuming execution at certain locations.</blockquote>
+        <p>&mdash;<a href="https://en.wikipedia.org/wiki/Coroutine">Wikipedia</a></p>
+      </section>
+      <section>
+        <h2>Basic Icicle usage</h2>
+        <pre class="font--20"><code class="php" data-trim>
+use Icicle\Http\Message\RequestInterface;
+use Icicle\Http\Message\Response;
+use Icicle\Http\Server\Server;
+use Icicle\Loop;
+
+$server = new Server(function (RequestInterface $request) {
+    $response = new Response(200);
+    yield $response->getBody()->end('Hello, world!');
+    yield $response->withHeader('Content-Type', 'text/plain');
+});
+
+$server->listen(8080);
+
+echo "Server running at http://127.0.0.1:8080\n";
+
+Loop\run();
+        </code></pre>
+      </section>
+
+      <section>
+        <h2>Promises in Icicle</h2>
+        <pre class="font--20"><code class="php" data-trim>
+use ...;
+
+$resolver = new Resolver(new Executor('8.8.8.8'));
+
+// Method returning a Generator used to create a Coroutine (a type of promise)
+$promise1 = new Coroutine($resolver->resolve('example.com'));
+
+$promise2 = $promise1->then(
+    function (array $ips) { // Called if $promise1 is fulfilled.
+        $connector = new Connector();
+        return new Coroutine($connector->connect($ips[0], 80)); // Return another promise.
+        // $promise2 will adopt the state of the promise returned above.
+    }
+);
+
+$promise2->done(
+    function (ClientInterface $client) { // Called if $promise2 is fulfilled.
+        echo "Asynchronously connected to example.com:80\n";
+    },
+    function (Exception $exception) { // Called if $promise1 or $promise2 is rejected.
+        echo "Asynchronous task failed: {$exception->getMessage()}\n";
+    }
+);
+
+Loop\run();
+        </code></pre>
+      </section>
+
     </section>
     <section>
       <section>
@@ -343,7 +528,86 @@
         <h2>Forking PHP!</h2>
       </section>
       <section>
+        <h2><a href="https://github.com/palantirnet/kiwi">Kiwi</a></h2>
+          <pre class="font--20"><code class="php" data-trim>
+$children = array();
+$num_processors = 3;
 
+// Spawn off children to do work.
+for ($child_id = 1; $child_id <= $num_processors; ++$child_id) {
+    $pid = pcntl_fork();
+    if ($pid == -1) {
+        die('could not fork');
+    }
+    else if ($pid) {
+        // This is the parent. Do nothing here but let the loop complete.
+        $children[] = $pid;
+    }
+    else {
+        // This is the child.
+        do_child_stuff(...);
+        // Kill the child process when done.
+        exit(0);
+    }
+}
+// Wait for all of the spawned children to die.
+$status = 0;
+foreach ($children as $pid) {
+    pcntl_waitpid($pid, $status);
+}
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>CLI task worker for large datasets, Field Museum</li>
+            <li>Shared mem up until pcntl_fork(), split after</li>
+            <li>Bootstrap app, wait on socket, fork!</li>
+            <li>Pre-create children, send messages with IPC (Apache!)</li>
+            <li>Each process can do own async</li>
+          </ul>
+        </aside>
+      </section>
+<section>
+        <h2><a href="https://github.com/palantirnet/kiwi">Kiwi</a></h2>
+          <pre class="font--20"><code class="php" data-trim>
+function server_loop($address, $port) {
+  $sock = socket_create(AF_INET, SOCK_STREAM, 0);
+  socket_bind($sock, $address, $port);
+  socket_listen($sock, 0);
+  socket_set_nonblock($sock);
+
+  while (true) {
+    $connection = @socket_accept($sock);
+    // No incoming messages, check again later.
+    if ($connection === false) {
+      usleep(100);
+    }
+    elseif ($connection > 0) {
+      $pid = pcntl_fork();
+      if ($pid == -1) {
+        die('could not fork');
+      }
+      else if ($pid) {
+        // This is the parent. Do nothing here but let the loop complete.
+      }
+      else {
+        // This is the child.
+        do_child_stuff(...);
+        // Kill the child process when done.
+        exit(0);
+      }
+    }
+  }
+}
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Note: Buggy, error handling removed. :-)</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <p class="bigtext"><a href="https://github.com/icicleio/concurrent">Icicle Concurrent</a></p>
+        <p class="bigtext">In development, Process manager with Channels for IPC</p>
       </section>
     </section>
     <section>
@@ -351,7 +615,7 @@
         <h2>Who will win?</h2>
       </section>
       <section>
-        <img src="assets/8-ball-ask-later" alt="Ask again later; I can't predict the future" data-credit="" />
+        <img src="assets/8ball-ask-again.gif" alt="Ask again later; I can't predict the future" data-credit="http://www.swissarmylibrarian.net/2008/06/" />
       </section>
       <section>
         <p class="bigtext">CGI won't go away entirely</p>
@@ -498,17 +762,24 @@
         <ul>
           <li><a href="http://www.reactphp.org/">React PHP</a></li>
           <li><a href="http://icicle.io">Icicle</a></li>
-          <li><a href="">HHVM</a></li>
+          <li><a href="https://github.com/asyncphp/doorman">Doorman</a></li>
+          <li><a href="http://docs.hhvm.com/">HHVM</a></li>
+        </ul>
+      </section>
+      <section>
+        <h2>PHP Resources</h2>
+        <ul>
+          <li><a href="http://php.net/manual/en/language.generators.overview.php">Generators</a></li>
+          <li><a href="http://php.net/manual/en/ref.pcntl.php">PHP process control</a> (PCNTL)</li>
         </ul>
       </section>
       <section>
         <h2>Further reading</h2>
         <ul>
-          <li><a href=""></a>PHP process control</li>
           <li><a href="http://www.sitepoint.com/an-introduction-into-event-loops-in-php/">An Introduction to Event Loops</a></li>
-          <li><a href=""></a>Articles from phone</li>
-          <li><a href=""></a></li>
-          <li><a href=""></a></li>
+          <li>Multi-process PHP by Chris Pitt, <a href="https://medium.com/@assertchris/multi-process-php-94a4e5a4be05">Part 1</a>, <a href="https://medium.com/@assertchris/a-while-ago-i-wrote-about-using-exec-and-shell-commands-to-manage-multiple-php-processes-511f2be5d30d">Part 2</a>, <a href="https://medium.com/@assertchris/event-loops-84978080389c">Part 3</a></li>
+          <li><a href="https://nikic.github.io/2012/12/22/Cooperative-multitasking-using-coroutines-in-PHP.html">Cooperative Multi-tasking using coroutines (in PHP!)</a>, </li>
+          <li><a href="http://www.slideshare.net/auroraeosrose/socket-programming-with-php">Socket Programming with PHP</a>, by Elizabeth Smith</li>
         </ul>
       </section>
     </section>
