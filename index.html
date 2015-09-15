@@ -143,7 +143,6 @@
           <li class="fragment">Composer/Packagist</li>
           <li class="fragment">PHP-FIG</li>
           <li class="fragment">Symfony2</li>
-          <li class="fragment">React PHP</li>
           <li class="fragment">Flexbox</li>
           <li class="fragment">PHP 5.4<span class="fragment">, PHP 5.5</span><span class="fragment">, PHP 5.6</span><span class="fragment">, PHP 7?</span></li>
           <li class="fragment">IE 9<span class="fragment">, IE 10</span><span class="fragment">, IE 11</span><span class="fragment">, Edge</span></li>
@@ -158,6 +157,7 @@
         <p class="bigtext">We need to get out in front</p>
       </section>
       <section>
+        <h2>Drupal 8 release schedule</h2>
         <img src="assets/drupal-8-release-schedule.jpg" alt="Semver releases will help" data-credit="https://www.drupal.org/core/dev-cycle" />
         <p class="fragment">Only part of the solution</p>
       </section>
@@ -455,6 +455,12 @@ dbFetch()
           <p><a href="https://philsturgeon.uk/php/2013/11/12/benchmarking-codswallop-nodejs-v-php/">Benchmarking Codswallop</a>, Phil Sturgeon</p>
           <img src="assets/php-v-node-results2.png" alt="PHP and Node.js are equally fast when async" data-credit="https://philsturgeon.uk/php/2013/11/12/benchmarking-codswallop-nodejs-v-php/" />
         </div>
+        <aside class="notes">
+          <ul>
+            <li>That was on PHP 5.5</li>
+            <li>PHP 7 is 2x fast for PHP parts</li>
+          </ul>
+        </aside>
       </section>
     </section>
     <section>
@@ -515,15 +521,15 @@ Done
       </section>
       <section>
         <pre class="font--20"><code class="php" data-trim>
-function logger($fileName) {
-  $fileHandle = fopen($fileName, 'a');
+function logger($config) {
+  $socket = openAsync($config);
   while (true) {
     $val = yield;
-    fwrite($fileHandle, $val. "\n");
+    socket_write($socket, $val . PHP_EOL, strlen($val) + 1);
   }
 }
 
-$logger = logger(__DIR__ . '/log.txt');
+$logger = logger([...]);
 $logger->send('Foo');
 $logger->send('Bar');
         </code></pre>
@@ -638,6 +644,11 @@ Array
  [1] => Goodbye, everybody!
 )
         </pre>
+        <aside class="notes">
+          <ul>
+            <li>async returns WaitHandler object</li>
+          </ul>
+        </aside>
       </section>
       <section>
         <h2>Native Async with I/O</h2>
@@ -718,7 +729,7 @@ foreach ($children as $pid) {
         </aside>
       </section>
 <section>
-        <h2><a href="https://github.com/palantirnet/kiwi">Kiwi</a></h2>
+        <h2>Forking server</h2>
           <pre class="font--20"><code class="php" data-trim>
 function server_loop($address, $port) {
   $sock = socket_create(AF_INET, SOCK_STREAM, 0);
@@ -767,7 +778,10 @@ function server_loop($address, $port) {
         <h2>Who will win?</h2>
       </section>
       <section>
-        <img src="assets/8ball-ask-again.gif" alt="Ask again later; I can't predict the future" data-credit="http://www.swissarmylibrarian.net/2008/06/" />
+        <img src="assets/8ball-ask-again.gif" width="400px" alt="Ask again later; I can't predict the future" data-credit="http://www.swissarmylibrarian.net/2008/06/" />
+      </section>
+      <section>
+        <h1>¯\_(ツ)_/¯</h1>
       </section>
       <section>
         <p class="bigtext">CGI won't go away entirely</p>
