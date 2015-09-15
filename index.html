@@ -263,19 +263,28 @@
       </section>
       <section class="l-3up">
         <h2>The Real-Time Web</h2>
-        <div class="fragment">
+        <div class="fragment" style="vertical-align: 50%">
           <p class="bigtext">EventSource/SSE</p>
         </div>
         <div class="fragment">
+          <p class="bigtext">Websockets</p>
           <img src="assets/websocket-logo.png" alt="Websockets" data-credit="https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5" />
         </div>
         <div class="fragment">
+          <p class="bigtext">HTTP/2</p>
           <img src="assets/http2-logo.png" alt="HTTP 2" data-credit="https://twitter.com/http_2" />
         </div>
         <p style="margin-top: 1em;" class="fragment bigtext">Persistent connections with server-push</p>
       </section>
       <section>
         <p class="bigtext">Our current way of running Drupal is<br />woefully inadequate</p>
+        <aside class="notes">
+          <ul>
+            <li>No persistent connections</li>
+            <li>Expensive bootstrap</li>
+            <li>Blocking IO (for REST APIs.)</li>
+          </ul>
+        </aside>
       </section>
     </section>
     <section>
@@ -327,9 +336,6 @@
     <section>
       <section>
         <h2>React PHP</h2>
-      </section>
-      <section>
-        <h2>React PHP</h2>
         <p class="fragment bigtext">Like NodeJS, but in PHP</p>
         <p class="fragment bigtext"><em>The</em> way to do Websockets in PHP today</p>
       </section>
@@ -374,10 +380,81 @@ $loop->run();
           <li class="fragment">Return from call immediately</li>
           <li class="fragment">Check back later</li>
         </ul>
+        <p class="fragment">(PHP inherits C's attrocious API)</p>
+      </section>
+      <section>
+        <h2>Non-Blocking IO</h2>
+        <pre class="font--20"><code class="php" data-trim>
+$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+socket_set_nonblock($socket);
+@socket_connect($socket, $ip_address, $port);
+socket_write($socket, $out);
+
+while (true) {
+  $sockets = [$socket];
+  $null = NULL;
+  $changed_sockets = socket_select($sockets, $null, $null, 0);
+  if ($changed_sockets == false) {
+    // Error
+  }
+  else if ($changed_sockets > 0) {
+      $data = socket_read($socket, 4096);
+      // Do somethign with $data.
+  }
+  else {
+    // Do something else for a while.
+  }
+}
+        </code></pre>
+        <p class="fragment">React abstracts this out for you.</p>
       </section>
       <section>
         <h2>Promises</h2>
         <p class="fragment">Solving callbacks</p>
+        <p class="fragment">Deferred execution on async</p>
+      </section>
+      <section>
+        <h2>Promises</h2>
+        <pre class="font--20"><code class="php" data-trim>
+function dbFetch($id) {
+  $deferred = new React\Promise\Deferred();
+
+  // Execute a Node.js-style function using the callback pattern
+  getDataFromDBAsync($id, function ($error, $result) use ($deferred) {
+    if ($error) {
+      $deferred->reject($error);
+    }
+    else {
+      $deferred->resolve($result);
+    }
+  });
+
+  // Return the promise
+  return $deferred->promise();
+}
+
+dbFetch()
+  ->then(function ($result) {
+      // Deferred resolved, do something with $result
+      return $result->fetchRow();
+
+    },
+    function ($reason) {
+      // error handling
+    }
+  )
+  ->then(function($record) {
+    // Do something useful with $record.
+  });
+        </code></pre>
+      </section>
+      <section>
+        <p><q>Node.js is way faster than PHP!</q></p>
+        <p class="fragment bigdeal">Wrong!</p>
+        <div class="fragment">
+          <p><a href="https://philsturgeon.uk/php/2013/11/12/benchmarking-codswallop-nodejs-v-php/">Benchmarking Codswallop</a>, Phil Sturgeon</p>
+          <img src="assets/php-v-node-results2.png" alt="PHP and Node.js are equally fast when async" data-credit="https://philsturgeon.uk/php/2013/11/12/benchmarking-codswallop-nodejs-v-php/" />
+        </div>
       </section>
     </section>
     <section>
@@ -519,9 +596,82 @@ Loop\run();
     <section>
       <section>
         <h2>HHVM</h2>
+        <ul>
+          <li class="fragment">Facebook reimplementation of PHP</li>
+          <li class="fragment"><em>Mostly</em> compatible</li>
+          <li class="fragment"><em>Much</em> faster than 5.6 (on par with 7)</li>
+        </ul>
       </section>
       <section>
+        <h2>Hack</h2>
+        <ul>
+          <li class="fragment">Extended PHP language</li>
+          <li class="fragment">New syntax!</li>
+          <li class="fragment">Had scalar types before they were cool</li>
+          <li class="fragment">Short lambdas, generics, shapes, constructor promotion...</li>
+        </ul>
+        <p class="fragment">And...</p>
+      </section>
+      <section>
+        <h2>Native Async</h2>
+        <pre class="font--18"><code class="php" data-trim>
+async function hello() {
+    return "Hello World";
+}
 
+async function goodbye() {
+    return "Goodbye, everybody!";
+}
+
+async function run(array $handles) {
+    await AwaitAllWaitHandle::fromArray($handles);
+  return array_map(function ($handle) { return $handle->result(); }, $handles);
+}
+
+$results = run(array(hello(), goodbye()))->getWaitHandle()->join();
+print_r($results);
+        </code></pre>
+        <pre class="output">
+Array
+(
+ [0] => Hello World
+ [1] => Goodbye, everybody!
+)
+        </pre>
+      </section>
+      <section>
+        <h2>Native Async with I/O</h2>
+        <pre class="font--18"><code class="php" data-trim>
+async function fibonacci_gen($num) {
+  $n1 = 0; $n2 = 1; $n3 = 1;
+  for ($i = 2; $i < $num; ++$i) {
+    $n3 = $n1 + $n2;
+    $n1 = $n2;
+    $n2 = $n3;
+    if (!($i % 100)) {
+      // Give other tasks a chance to do something
+      // every 100th iteration
+      await RescheduleWaitHandle::create(
+        RescheduleWaitHandle::QUEUE_DEFAULT,
+        0,
+      );
+    }
+  }
+  return $n3;
+}
+$results = run(array(
+  "web"  => curl_exec_await("http://example.com"),
+  "sql"  => mysql_async_query($conn, "SELECT * FROM user"),
+  "disk" => file_async_contents("/var/log/access.log"),
+  "mc"   => memcached_async_get("somekey"),
+  "fib"  => fibonacci_gen(2000),
+))->getWaitHandle()->join();
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Now imagine each of those coroutines is a block...</li>
+          </ul>
+        </aside>
       </section>
     </section>
     <section>
@@ -675,6 +825,7 @@ function server_loop($address, $port) {
           <li class="fragment">ContainerAware: <span class="fragment">Coupled to one container</span></li>
           <li class="fragment">RequestStack: <span class="fragment">Subrequests, not async</span></li>
         </ul>
+        <p class="fragment">Separate repos?</p>
         <aside class="notes">
           <ul>
             <li>Render context could go either way if async</li>
@@ -716,48 +867,9 @@ function server_loop($address, $port) {
       </section>
       <section>
         <h1>Win!</h1>
-        <img src="assets/win" alt="We still win" data-credit="" />
+        <img src="assets/minion-win.gif" alt="We still win" data-credit="https://funnyjunk.com/funny_gifs/4816070/Whenever+i+win+an+argument+with+my+girl/" />
       </section>
     </section>
-
-
-
-    <div style="display: none">
-      D8: Gonna be great
-      D8: We're playing catch up
-      Get out in front of changes, prepare for them now
-      What will the market want/need/look like in 2020?
-      What will the tech be in 2020?
-
-      Dries: Push web
-      Decoupled CMSes (need source for growth)
-      Headless (Often many requests)
-      Real time web (websockets, SSE)
-
-      None of those work well now:
-      - Push on queue?  Now you're doing async badly
-      - Decoupled: Need many requests, diff caching. Really want a lighter bootstrap
-      - Real time: Needs persistent connection, daemon
-      => The problem is CGI. Need to move away from CGI.
-
-      PHP w/out CGI???
-      - PHP 5.3: daemons actually work, RAM-wise
-      - Have sockets
-      - React PHP, async, fast, websockets
-      - Icicle.io, generators
-      - Process forking?
-
-      We will need this in 2020. But which? All or nothing? No idea?
-
-      How do we prepare for what we don't know?
-      Stateless code.
-      Even less of our own code
-      Isolated IO (to replace)
-      No container-aware (need different container).
-      .. The same good clean code we've been after for a long time.
-
-    </div>
-
     <section>
       <section>
         <h2>Tools</h2>
@@ -782,6 +894,7 @@ function server_loop($address, $port) {
           <li>Multi-process PHP by Chris Pitt, <a href="https://medium.com/@assertchris/multi-process-php-94a4e5a4be05">Part 1</a>, <a href="https://medium.com/@assertchris/a-while-ago-i-wrote-about-using-exec-and-shell-commands-to-manage-multiple-php-processes-511f2be5d30d">Part 2</a>, <a href="https://medium.com/@assertchris/event-loops-84978080389c">Part 3</a></li>
           <li><a href="https://nikic.github.io/2012/12/22/Cooperative-multitasking-using-coroutines-in-PHP.html">Cooperative Multi-tasking using coroutines (in PHP!)</a>, </li>
           <li><a href="http://www.slideshare.net/auroraeosrose/socket-programming-with-php">Socket Programming with PHP</a>, by Elizabeth Smith</li>
+          <li><a href="http://hhvm.com/blog/7091/async-cooperative-multitasking-for-hack">Async Cooperative Multitasking for Hack</a>, by Sara Golemon</li>
         </ul>
       </section>
     </section>
